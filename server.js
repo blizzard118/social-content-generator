@@ -20,7 +20,7 @@ const server=http.createServer(async(req,res)=>{
  if(req.method==='GET' && req.url==='/api/config') return send(200,{types,platforms,maxMB,mode:process.env.OPENAI_API_KEY?'live':'demo'});
  if(req.method==='POST' && req.url==='/api/help-draft'){
  let data='';for await(const chunk of req){data+=chunk;if(data.length>20000)return send(413,{error:'Please shorten your notes.'})}
- const input=JSON.parse(data);if(!types[input.type]?.includes(input.goal)||!platforms[input.platform]?.includes(input.format)||typeof input.seed!=='string'||!input.seed.trim()||input.seed.length>5000||(input.goal==='Other'&&(typeof input.otherGoal!=='string'||!input.otherGoal.trim()||input.otherGoal.length>200)))return send(400,{error:'Please add a few words about your idea.'});
+ const input=JSON.parse(data);if(!types[input.type]?.includes(input.goal)||!platforms[input.platform]?.includes(input.format)||typeof input.seed!=='string'||input.seed.length>5000||(input.keywords!==undefined&&(typeof input.keywords!=='string'||input.keywords.length>2000))||(!input.seed.trim()&&!(input.keywords||'').trim())||(input.audience!==undefined&&(typeof input.audience!=='string'||input.audience.length>200))||(input.tone!==undefined&&!['','Friendly','Professional','Playful','Informative'].includes(input.tone))||(input.goal==='Other'&&(typeof input.otherGoal!=='string'||!input.otherGoal.trim()||input.otherGoal.length>200)))return send(400,{error:'Please add a few words about your idea.'});
  try{return send(200,await helpDraft(input))}catch(e){return send(502,{error:e instanceof ServiceError?e.message:'Could not reach the AI service. Check your internet connection and try again.'})}
  }
  if(req.method==='POST' && req.url==='/api/edit-image'){
