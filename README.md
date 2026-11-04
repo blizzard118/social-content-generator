@@ -12,7 +12,7 @@ Photo editing uses OpenAI's image edits API with `OPENAI_IMAGE_MODEL` (default `
 
 To collect counts-only API usage during testing, set `USAGE_LOGGING=true` before starting the server. Each successful provider response prints a JSON line containing the model, operation and available token counts; it never includes prompts, media, or draft text. Luna draft calls include an approximate USD estimate at standard text token rates (excluding regional, long-context, and other adjustments). Photo-edit costs are not estimated in the app; use the provider dashboard for billed costs. Logs are not persistent unless the operator captures them. No live usage has been measured without credentials.
 
-“Help me draft” sends the user’s short notes and selected context to the text model when live generation is configured. In demo mode it provides a clearly labeled template. Selecting Other requires a short description of the topic.
+“Help me draft” sends the user’s description, optional keywords, tone, audience, and selected context to the text model when live generation is configured. In demo mode it provides a clearly labeled template. Selecting Other requires a short description of the topic.
 
 ## Privacy and security
 
