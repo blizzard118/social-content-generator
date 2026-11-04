@@ -4,8 +4,19 @@ import {types,platforms,guidance} from './config.js';
 import {generate, editImage, helpDraft} from './service.js';
 const maxMB=Number(process.env.MAX_UPLOAD_MB)||10;
 const server=http.createServer(async(req,res)=>{
+ res.setHeader('Cache-Control','no-store');
+ res.setHeader('X-Content-Type-Options','nosniff');
+ res.setHeader('Referrer-Policy','no-referrer');
+ res.setHeader('X-Frame-Options','DENY');
+ res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
+ res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
  const send=(status,obj)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(obj))};
  try{
+ if(req.method==='POST'){
+  if(req.headers['sec-fetch-site']==='cross-site')return send(403,{error:'Request not allowed.'});
+  if(req.headers.origin){let origin;try{origin=new URL(req.headers.origin)}catch{return send(403,{error:'Request not allowed.'})}if(origin.host!==req.headers.host)return send(403,{error:'Request not allowed.'})}
+  if(!/^application\/json(?:\s*;|$)/i.test(req.headers['content-type']||''))return send(415,{error:'Expected JSON.'});
+ }
  if(req.method==='GET' && req.url==='/api/config') return send(200,{types,platforms,maxMB,mode:process.env.OPENAI_API_KEY?'live':'demo'});
  if(req.method==='POST' && req.url==='/api/help-draft'){
  let data='';for await(const chunk of req){data+=chunk;if(data.length>20000)return send(413,{error:'Please shorten your notes.'})}
@@ -29,4 +40,4 @@ const server=http.createServer(async(req,res)=>{
  send(404,{error:'Not found'});
  }catch(e){send(500,{error:'Something went wrong while creating drafts. Please try again.'})}
 });
-server.listen(process.env.PORT||3000,()=>console.log('Social Post Studio is running'));
+server.listen(process.env.PORT||3000,process.env.HOST||'127.0.0.1',()=>console.log('Social Post Studio is running'));
