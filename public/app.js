@@ -1,6 +1,8 @@
 const config=await (await fetch('/api/config')).json();
 const state={type:'',goal:'',otherGoal:'',platform:'',format:'',description:'',tone:'',audience:'',image:'',file:null}; let step=0, drafts=[], mediaUrl='';
 const $=s=>document.querySelector(s), content=$('#step-content'), results=$('#results');
+$('#end-session').onclick=()=>{if(confirm('End this session and clear your current work?')){if(mediaUrl)URL.revokeObjectURL(mediaUrl);location.replace('/')}};
+window.addEventListener('pageshow',event=>{if(event.persisted)location.reload()});
 const labels=['About you','Your idea','Your platform','Post format','The details','Add media'];
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function render(){
