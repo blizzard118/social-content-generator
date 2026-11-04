@@ -13,3 +13,5 @@ test('live requests use supported models and count-only usage',async()=>{
 });
 
 test('other is available for every poster and demo help uses provided notes',async()=>{for(const goals of Object.values(types))assert.ok(goals.includes('Other'));const old=process.env.OPENAI_API_KEY;delete process.env.OPENAI_API_KEY;try{const result=await helpDraft({seed:'my garden',type:'Individual',goal:'Other',otherGoal:'gardening'});assert.equal(result.mode,'demo');assert.match(result.suggestion,/my garden/)}finally{if(old!==undefined)process.env.OPENAI_API_KEY=old}});
+
+test('invalid API credentials give a safe actionable error',async()=>{const oldFetch=globalThis.fetch,oldKey=process.env.OPENAI_API_KEY;process.env.OPENAI_API_KEY='private-key';globalThis.fetch=async()=>({ok:false,status:401});try{await assert.rejects(generate({description:'test',platform:'Instagram'}),e=>e.message.includes('not accepted')&&!e.message.includes('private-key'))}finally{globalThis.fetch=oldFetch;if(oldKey===undefined)delete process.env.OPENAI_API_KEY;else process.env.OPENAI_API_KEY=oldKey}});
