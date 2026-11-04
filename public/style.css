@@ -3,3 +3,4 @@
 .photo-edit{margin-top:20px}.photo-edit label{display:block;font-size:14px;font-weight:700;color:#315c7e;margin-bottom:10px}.photo-edit textarea{min-height:90px}.photo-edit button{margin-top:10px}.photo-edit p{font-size:13px;color:#40566a}
 
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+.other-goal{margin-top:20px}.other-goal label,.help-box label{display:block;font-weight:700;font-size:14px;color:#304b63;margin-bottom:8px}.help-box{margin-top:15px;border:1px solid #d8e2eb;background:#f5f8fb;border-radius:10px;padding:16px}.help-box strong{font-size:14px;color:#304b63}.help-box p{font-size:13px;line-height:1.5;color:#4b5c6e}.help-box textarea{min-height:100px}.help-box button{margin-top:8px}
