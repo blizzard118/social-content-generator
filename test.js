@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {generate,editImage} from './service.js';
+import {generate,editImage,helpDraft} from './service.js';
 import {types,platforms,guidance} from './config.js';
 test('all platforms have formats and guidance',()=>{for(const [name,formats] of Object.entries(platforms)){assert.ok(formats.length);assert.ok(guidance[name])}assert.equal(Object.keys(types).length,3)});
 test('demo generation returns three editable drafts',async()=>{const key=process.env.OPENAI_API_KEY;delete process.env.OPENAI_API_KEY;try{const r=await generate({description:'A new bakery',platform:'Instagram'});assert.equal(r.mode,'demo');assert.equal(r.drafts.length,3);assert.ok(r.drafts.every(x=>x.body.includes('bakery')))}finally{if(key)process.env.OPENAI_API_KEY=key}});
@@ -11,3 +11,5 @@ test('live requests use supported models and count-only usage',async()=>{
  globalThis.fetch=async(url,options)=>{calls.push({url,options});return {ok:true,json:async()=>url.includes('/images/')?{data:[{b64_json:'aGVsbG8='}],usage:{input_tokens:100,output_tokens:200,input_tokens_details:{text_tokens:20,image_tokens:80}}}:{choices:[{message:{content:JSON.stringify({drafts:[{body:'a'},{body:'b'},{body:'c'}]})}}],usage:{prompt_tokens:1000,completion_tokens:1000}}}};
  try{await generate({description:'private text',platform:'Instagram'});await editImage('png','aGVsbG8=','private instruction');assert.equal(JSON.parse(calls[0].options.body).model,'gpt-6-luna');assert.equal(calls[1].options.body.get('model'),'gpt-image-2.5-sunburst');assert.equal(JSON.parse(logs[0]).estimated_usd,0.0006);assert.ok(logs.every(x=>!x.includes('private')))}finally{globalThis.fetch=oldFetch;console.log=oldConsole;for(const [key,value] of [['OPENAI_API_KEY',oldKey],['USAGE_LOGGING',oldLog],['OPENAI_MODEL',oldModel],['OPENAI_IMAGE_MODEL',oldImageModel]]){if(value===undefined)delete process.env[key];else process.env[key]=value}}
 });
+
+test('other is available for every poster and demo help uses provided notes',async()=>{for(const goals of Object.values(types))assert.ok(goals.includes('Other'));const old=process.env.OPENAI_API_KEY;delete process.env.OPENAI_API_KEY;try{const result=await helpDraft({seed:'my garden',type:'Individual',goal:'Other',otherGoal:'gardening'});assert.equal(result.mode,'demo');assert.match(result.suggestion,/my garden/)}finally{if(old!==undefined)process.env.OPENAI_API_KEY=old}});
